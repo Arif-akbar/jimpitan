@@ -10,11 +10,27 @@ final rumahByRtProvider = Provider.family<List<RumahModel>, String>(
   (ref, rt) => DummyData.semuaRumah.where((r) => r.rt == rt).toList(),
 );
 
-/// Rumah milik petugas yang sedang login (berdasarkan RT)
-final petugasRumahListProvider = Provider<List<RumahModel>>((ref) {
+class PetugasRumahListNotifier extends StateNotifier<List<RumahModel>> {
+  PetugasRumahListNotifier(super.state);
+
+  void reorder(int oldIndex, int newIndex) {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+    final newState = List<RumahModel>.from(state);
+    final item = newState.removeAt(oldIndex);
+    newState.insert(newIndex, item);
+    state = newState;
+  }
+}
+
+/// Rumah milik petugas yang sedang login (berdasarkan RT) dengan fitur Reorder
+final petugasRumahListProvider = StateNotifierProvider<PetugasRumahListNotifier, List<RumahModel>>((ref) {
   final user = ref.watch(currentUserProvider);
-  if (user == null) return [];
-  return ref.watch(rumahByRtProvider(user.rt));
+  if (user == null) return PetugasRumahListNotifier([]);
+  // Ambil data utuh jika ini inisialisasi awal
+  final initialList = DummyData.semuaRumah.where((r) => r.rt == user.rt).toList();
+  return PetugasRumahListNotifier(initialList);
 });
 
 /// Jimpitan hari ini untuk RT petugas yang sedang login

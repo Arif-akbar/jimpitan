@@ -26,6 +26,30 @@ class AuthState {
 class AuthNotifier extends StateNotifier<AuthState> {
   AuthNotifier() : super(const AuthState());
 
+  /// Login dengan email dan password dari input user
+  Future<UserModel> login(String email, String password) async {
+    state = state.copyWith(isLoading: true);
+    
+    // Simulasi delay jaringan (Bisa dihapus saat menggunakan Firebase)
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // Validasi credential (dummy logic)
+    if (password != '123456') {
+      state = state.copyWith(isLoading: false);
+      throw Exception('Peringatan Akun Salah');
+    }
+
+    try {
+      // Pengecekan email terhadap dummy data
+      final user = DummyData.users.firstWhere((u) => u.email == email);
+      state = AuthState(currentUser: user, isLoading: false);
+      return user;
+    } catch (e) {
+      state = state.copyWith(isLoading: false);
+      throw Exception('Peringatan Akun Salah');
+    }
+  }
+
   /// Login dengan role tertentu (dummy — pilih user pertama dengan role tsb)
   void loginAs(UserRole role) {
     state = state.copyWith(isLoading: true);
@@ -35,6 +59,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   /// Login sebagai warga tertentu (untuk demo multi-warga)
   void loginAsWargaWithRumah(String rumahId) {
+    state = state.copyWith(isLoading: true);
     final user = DummyData.users.firstWhere(
       (u) => u.role == UserRole.warga && u.rumahId == rumahId,
       orElse: () => DummyData.getUserByRole(UserRole.warga),

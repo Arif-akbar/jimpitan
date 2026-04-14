@@ -75,7 +75,7 @@ class PetugasDashboardPage extends ConsumerWidget {
                 label: AppStrings.listRumah,
                 icon: Icons.format_list_bulleted_rounded,
                 color: AppColors.accent,
-                subtitle: '${sesi.totalDiambil} discan dari $totalRumah rumah',
+                subtitle: '${sesi.totalDiambil} discan dari $totalRumah rumah\nTerkumpul: Rp ${sesi.totalDiambil * 500}',
                 onTap: () => context.goNamed(RouteNames.petugasListRumah),
               ),
               const SizedBox(height: 12),
@@ -161,9 +161,9 @@ class PetugasDashboardPage extends ConsumerWidget {
       children: [
         _StatCard(value: '$diambil', label: 'Diambil', color: AppColors.success),
         const SizedBox(width: 10),
-        _StatCard(value: '$kosong', label: 'Kosong', color: AppColors.error),
+        _StatCard(value: '${diambil * 500}', label: 'Rp Terkumpul', color: AppColors.bendaharaColor),
         const SizedBox(width: 10),
-        _StatCard(value: '$total', label: 'Total', color: AppColors.petugasColor),
+        _StatCard(value: '$total', label: 'Total Rumah', color: AppColors.petugasColor),
       ],
     );
   }
@@ -326,7 +326,7 @@ class PetugasDashboardPage extends ConsumerWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _summaryRow('✅ Total Diambil', '${sesi.totalDiambil} rumah',
+            _summaryRow('✅ Total Diambil', '${sesi.totalDiambil} rumah (Rp ${sesi.totalDiambil * 500})',
                 AppColors.success),
             const SizedBox(height: 8),
             _summaryRow('❌ Total Kosong', '${sesi.totalKosong} rumah',

@@ -2,6 +2,8 @@ import 'package:jimpitan_digital/shared/enums/user_role.dart';
 import 'package:jimpitan_digital/shared/models/user_model.dart';
 import 'package:jimpitan_digital/shared/models/rumah_model.dart';
 import 'package:jimpitan_digital/shared/models/jimpitan_model.dart';
+import 'package:jimpitan_digital/shared/models/jadwal_ronda_model.dart';
+import 'package:jimpitan_digital/shared/models/keuangan_model.dart';
 
 /// Semua data dummy/seed untuk Phase 2 (tanpa Firebase)
 class DummyData {
@@ -113,4 +115,49 @@ class DummyData {
   // Helper: cari rumah by RT
   static List<RumahModel> getRumahByRt(String rt) =>
       semuaRumah.where((r) => r.rt == rt).toList();
+
+  // ─── DATA KEUANGAN AWAL ──────────────────────────────────────────────────
+  static List<KeuanganModel> generateKeuanganAwal() {
+    return [
+      KeuanganModel(
+        id: 'k1',
+        tipe: TipeKeuangan.pemasukan,
+        nominal: 150000,
+        keterangan: 'Hasil jimpitan minggu ke-1',
+        tanggal: DateTime.now().subtract(const Duration(days: 7)),
+      ),
+      KeuanganModel(
+        id: 'k2',
+        tipe: TipeKeuangan.pengeluaran,
+        nominal: 25000,
+        keterangan: 'Beli kopi dan gula untuk pos kamling',
+        tanggal: DateTime.now().subtract(const Duration(days: 5)),
+      ),
+      KeuanganModel(
+        id: 'k3',
+        tipe: TipeKeuangan.pemasukan,
+        nominal: 175000,
+        keterangan: 'Hasil jimpitan minggu ke-2',
+        tanggal: DateTime.now().subtract(const Duration(days: 1)),
+      ),
+    ];
+  }
+
+  // ─── JADWAL RONDA ────────────────────────────────────────────────────────
+  static const List<JadwalRondaModel> jadwalRonda = [
+    JadwalRondaModel(id: 'j1', hari: 1, rt: 'RT01', petugasNames: ['Ahmad Zaini', 'Dodi Setiawan']),
+    JadwalRondaModel(id: 'j2', hari: 1, rt: 'RT02', petugasNames: ['Teduh', 'Tedi']),
+    JadwalRondaModel(id: 'j3', hari: 2, rt: 'RT01', petugasNames: ['Heri', 'Joko']),
+    JadwalRondaModel(id: 'j4', hari: 2, rt: 'RT02', petugasNames: ['Rudi', 'Bambang']),
+    JadwalRondaModel(id: 'j5', hari: 3, rt: 'RT01', petugasNames: ['Santoso', 'Yudi']),
+    JadwalRondaModel(id: 'j6', hari: 3, rt: 'RT02', petugasNames: ['Wawan', 'Sapto']),
+    JadwalRondaModel(id: 'j7', hari: 4, rt: 'RT01', petugasNames: ['Ahmad Zaini', 'Toni']),
+    JadwalRondaModel(id: 'j8', hari: 4, rt: 'RT02', petugasNames: ['Tono', 'Tini']),
+    JadwalRondaModel(id: 'j9', hari: 5, rt: 'RT01', petugasNames: ['Bayu', 'Bagas']),
+    JadwalRondaModel(id: 'j10', hari: 5, rt: 'RT02', petugasNames: ['Iwan', 'Rizal']),
+    JadwalRondaModel(id: 'j11', hari: 6, rt: 'RT01', petugasNames: ['Surya', 'Dani']),
+    JadwalRondaModel(id: 'j12', hari: 6, rt: 'RT02', petugasNames: ['Doni', 'Dika']),
+    JadwalRondaModel(id: 'j13', hari: 7, rt: 'RT01', petugasNames: ['Arif', 'Eko']),
+    JadwalRondaModel(id: 'j14', hari: 7, rt: 'RT02', petugasNames: ['Indra', 'Ikhsan']),
+  ];
 }

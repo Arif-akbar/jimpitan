@@ -35,19 +35,47 @@ class ListRumahPage extends ConsumerWidget {
           Container(
             color: AppColors.surface,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: Row(
+            child: Column(
               children: [
-                _StatusDot(count: diambil, label: 'Discan', color: AppColors.success),
-                const SizedBox(width: 16),
-                _StatusDot(count: kosong, label: 'Kosong', color: AppColors.error),
-                const SizedBox(width: 16),
-                _StatusDot(count: belum < 0 ? 0 : belum, label: 'Belum', color: AppColors.textSecondary),
-                const Spacer(),
-                Text(
-                  '${rumahList.length} Rumah',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
+                Row(
+                  children: [
+                    _StatusDot(count: diambil, label: 'Discan', color: AppColors.success),
+                    const SizedBox(width: 16),
+                    _StatusDot(count: kosong, label: 'Kosong', color: AppColors.error),
+                    const SizedBox(width: 16),
+                    _StatusDot(count: belum < 0 ? 0 : belum, label: 'Belum', color: AppColors.textSecondary),
+                    const Spacer(),
+                    Text(
+                      '${rumahList.length} Rumah',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.success.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.monetization_on_rounded, color: AppColors.success, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Total Uang Terkumpul: Rp ${diambil * 500}',
+                        style: const TextStyle(
+                          color: AppColors.success,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -63,10 +91,19 @@ class ListRumahPage extends ConsumerWidget {
             ),
           // ── List ─────────────────────────────────────────────────────────
           Expanded(
-            child: ListView.separated(
+            child: ReorderableListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: rumahList.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 8),
+              onReorder: (oldIndex, newIndex) {
+                ref.read(petugasRumahListProvider.notifier).reorder(oldIndex, newIndex);
+              },
+              proxyDecorator: (widget, index, animation) {
+                // Menghilangkan efek background solid dari library bawaan saat ditarik
+                return Material(
+                  color: Colors.transparent,
+                  child: widget,
+                );
+              },
               itemBuilder: (context, i) {
                 final rumah = rumahList[i];
                 // Cek apakah rumah ini ada di sesi saat ini
@@ -75,11 +112,15 @@ class ListRumahPage extends ConsumerWidget {
                     .firstOrNull;
                 final statusSesiIni = jimpitanSesiIni?.status;
 
-                return _HouseCard(
-                  nomorRumah: rumah.nomorRumah,
-                  namaKK: rumah.namaKepalaKeluarga,
-                  alamat: rumah.alamat,
-                  status: statusSesiIni,
+                return Padding(
+                  key: ValueKey(rumah.id),
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: _HouseCard(
+                    nomorRumah: rumah.nomorRumah,
+                    namaKK: rumah.namaKepalaKeluarga,
+                    alamat: rumah.alamat,
+                    status: statusSesiIni,
+                  ),
                 );
               },
             ),
@@ -212,6 +253,17 @@ class _HouseCard extends StatelessWidget {
           ),
           Row(
             children: [
+              if (status == JimpitanStatus.diambil) ...[
+                const Text(
+                  '+Rp500',
+                  style: TextStyle(
+                    color: AppColors.success,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
               Icon(_icon, color: _color, size: 16),
               const SizedBox(width: 4),
               Text(_statusLabel,

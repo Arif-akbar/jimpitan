@@ -18,4 +18,6 @@ class RouteNames {
   static const String bendaharaDashboard = '/bendahara/dashboard';
   static const String bendaharaLaporan = '/bendahara/laporan';
   static const String bendaharaLaporanDetail = '/bendahara/laporan/detail';
+  static const String bendaharaRumah = '/bendahara/rumah';
+  static const String bendaharaKeuangan = '/bendahara/keuangan';
 }

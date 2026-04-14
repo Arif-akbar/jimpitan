@@ -8,6 +8,8 @@ import 'package:jimpitan_digital/features/warga/presentation/pages/riwayat_detai
 import 'package:jimpitan_digital/features/bendahara/presentation/pages/bendahara_dashboard_page.dart';
 import 'package:jimpitan_digital/features/bendahara/presentation/pages/laporan_page.dart';
 import 'package:jimpitan_digital/features/bendahara/presentation/pages/laporan_detail_page.dart';
+import 'package:jimpitan_digital/features/bendahara/presentation/pages/bendahara_rumah_page.dart';
+import 'package:jimpitan_digital/features/bendahara/presentation/pages/bendahara_keuangan_page.dart';
 import 'package:jimpitan_digital/shared/models/jimpitan_model.dart';
 import 'package:jimpitan_digital/features/bendahara/presentation/providers/bendahara_providers.dart';
 import 'package:jimpitan_digital/core/constants/route_names.dart';
@@ -74,6 +76,16 @@ final appRouter = GoRouter(
         final laporan = state.extra as LaporanHarian;
         return LaporanDetailPage(laporan: laporan);
       },
+    ),
+    GoRoute(
+      path: RouteNames.bendaharaRumah,
+      name: RouteNames.bendaharaRumah,
+      builder: (context, state) => const BendaharaRumahPage(),
+    ),
+    GoRoute(
+      path: RouteNames.bendaharaKeuangan,
+      name: RouteNames.bendaharaKeuangan,
+      builder: (context, state) => const BendaharaKeuanganPage(),
     ),
   ],
 );

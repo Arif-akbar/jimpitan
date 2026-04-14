@@ -18,20 +18,111 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _emailCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
   bool _obscure = true;
+  bool _isLoading = false;
 
-  void _loginAs(UserRole role) {
-    ref.read(authProvider.notifier).loginAs(role);
-    switch (role) {
-      case UserRole.petugas:
-        context.go(RouteNames.petugasDashboard);
-        break;
-      case UserRole.warga:
-        context.go(RouteNames.wargaDashboard);
-        break;
-      case UserRole.bendahara:
-        context.go(RouteNames.bendaharaDashboard);
-        break;
+  Future<void> _handleLogin() async {
+    final email = _emailCtrl.text.trim();
+    final pass = _passCtrl.text.trim();
+
+    if (email.isEmpty || pass.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Email dan password harus diisi')),
+      );
+      return;
     }
+
+    setState(() => _isLoading = true);
+
+    // Simulasi jeda server / validasi
+    await Future.delayed(const Duration(milliseconds: 600));
+
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    // Tampilkan popup pilihan role karena belum ada database asli
+    _showRolePicker();
+  }
+
+  void _showRolePicker() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Pilih Role (Mode Demo)',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 24),
+              _buildRoleItem(
+                UserRole.petugas,
+                'Petugas Ronda',
+                Icons.directions_walk_rounded,
+                AppColors.petugasColor,
+                RouteNames.petugasDashboard,
+              ),
+              const SizedBox(height: 12),
+              _buildRoleItem(
+                UserRole.warga,
+                'Warga',
+                Icons.home_rounded,
+                AppColors.wargaColor,
+                RouteNames.wargaDashboard,
+              ),
+              const SizedBox(height: 12),
+              _buildRoleItem(
+                UserRole.bendahara,
+                'Bendahara',
+                Icons.account_balance_wallet_rounded,
+                AppColors.bendaharaColor,
+                RouteNames.bendaharaDashboard,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildRoleItem(
+    UserRole role,
+    String title,
+    IconData icon,
+    Color color,
+    String route,
+  ) {
+    return ElevatedButton.icon(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color.withValues(alpha: 0.1),
+        foregroundColor: color,
+        elevation: 0,
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      icon: Icon(icon, size: 24),
+      label: Text(
+        title,
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+      ),
+      onPressed: () {
+        Navigator.pop(context); // Tutup modal
+        ref.read(authProvider.notifier).loginAs(role); // Set role di state
+        context.go(route); // Pindah halaman
+      },
+    );
   }
 
   @override
@@ -55,8 +146,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               _buildHeader(),
               const SizedBox(height: 48),
               _buildForm(),
-              const SizedBox(height: 32),
-              _buildDevRolePicker(),
               const SizedBox(height: 40),
             ],
           ),
@@ -150,9 +239,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             labelText: AppStrings.password,
             prefixIcon: const Icon(Icons.lock_outlined),
             suffixIcon: IconButton(
-              icon: Icon(_obscure
-                  ? Icons.visibility_off_outlined
-                  : Icons.visibility_outlined),
+              icon: Icon(
+                _obscure
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+              ),
               onPressed: () => setState(() => _obscure = !_obscure),
             ),
             filled: true,
@@ -177,95 +268,31 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         SizedBox(
           height: 52,
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: _isLoading ? null : _handleLogin,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(12),
+              ),
               elevation: 0,
             ),
-            child: const Text(
-              AppStrings.login,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
+            child: _isLoading
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2.5,
+                    ),
+                  )
+                : const Text(
+                    AppStrings.login,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildDevRolePicker() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(children: [
-          const Expanded(child: Divider()),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Text(
-              'Mode Demo — Pilih Role',
-              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-            ),
-          ),
-          const Expanded(child: Divider()),
-        ]),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            _roleBtn(
-              UserRole.petugas,
-              Icons.directions_walk_rounded,
-              AppColors.petugasColor,
-              'Ahmad\n(RT01)',
-            ),
-            const SizedBox(width: 8),
-            _roleBtn(
-              UserRole.warga,
-              Icons.home_rounded,
-              AppColors.wargaColor,
-              'Budi\n(Warga)',
-            ),
-            const SizedBox(width: 8),
-            _roleBtn(
-              UserRole.bendahara,
-              Icons.bar_chart_rounded,
-              AppColors.bendaharaColor,
-              'Hendra\n(Bendahara)',
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _roleBtn(UserRole role, IconData icon, Color color, String label) {
-    return Expanded(
-      child: OutlinedButton(
-        onPressed: () => _loginAs(role),
-        style: OutlinedButton.styleFrom(
-          side: BorderSide(color: color.withValues(alpha: 0.4)),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          padding: const EdgeInsets.symmetric(vertical: 12),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, size: 22, color: color),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: color,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                height: 1.3,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
